@@ -1,0 +1,30 @@
+BEGIN_PROLOG
+
+AnalyzeReco:
+{
+    module_type: "AnalyzeReco"
+
+    MCTruthLabel:     "generator"
+    MCParticleLabel:  "largeant"
+    POTLabel:         "generator"
+    SliceLabel:       "pandora"
+    SliceModuleLabel: "pandoraSCE"
+    PFParticleLabel:  "pandora"
+    PFParticleMetadataLabel: "pandora"
+    VertexLabel:      "pandora"
+    TrackLabel:       "pandoraTrack"
+    ShowerLabel:      "pandoraShower"
+    CalorimetryLabel: "pandoraCalo"
+    Chi2ModuleLabel:  "pandoraPid"
+    HitLabel:         "gaushit"
+
+    save_truth_gen_particles:       true
+    save_truth_g4:                  true
+    save_reco:                      true
+    save_TruthMatching:             true
+
+    TrackScoreLimit: 0.45
+    Verbose: true
+}
+
+END_PROLOG
