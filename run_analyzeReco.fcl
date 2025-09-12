@@ -11,26 +11,6 @@
 #include "photonbacktrackerservice.fcl"
 #include "mccheatermodules.fcl"
 
-#include "calorimetry_sbnd.fcl"
-
-#include "trackscatterclosestapproach.fcl"
-#include "trackstoppingchi2fitter.fcl"
-#include "showerselectionvarsproducer.fcl"
-#include "showercosmicdistanceproducer.fcl"
-#include "sbn_pid.fcl"
-#include "sbn_crumbs_producer.fcl"
-
-#include "crthitconverter_producer.fcl"
-#include "crtmatch_producer.fcl"
-#include "pmtflashtrigger_producer.fcl"
-
-#include "flashmatch_sbnd.fcl"
-#include "sbn_stub.fcl"
-
-#include "cafmaker_common_defs.fcl"
-
-process_name:AnalyzeReco            # The process name must NOT contain any underscores
-
 source:
 {
     module_type: RootInput # Telling art we want a ROOT input
