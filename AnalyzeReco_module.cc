@@ -452,7 +452,6 @@ void sbnd::AnalyzeReco::analyze(art::Event const& e)                            
   // Get gen vector
   std::vector<art::Ptr < simb::MCTruth>> MCT_vec;
   art::fill_ptr_vector(MCT_vec, MCT_handle);
-  
 
   // Get g4 vector
   std::vector<art::Ptr < simb::MCParticle>> MCP_vec;
@@ -991,23 +990,29 @@ void sbnd::AnalyzeReco::analyseTruth_gen(const art::Ptr<simb::MCTruth> MCT)
   // Get generator information
   // Get neutrino information
 
-  fNu_PDG = MCT->GetNeutrino().Nu().PdgCode();
-  fNu_E0 = MCT->GetNeutrino().Nu().E(0);
-  fNu_weight = MCT->GetNeutrino().Nu().Weight();
+  fNu_PDG = MCT->GetNeutrino().Nu().PdgCode(); // If it is not a neutrino, it gives pdgCode = -2147483648
 
-  fNu_interaction_mode = MCT->GetNeutrino().Mode();
-  fNu_interaction_type = MCT->GetNeutrino().InteractionType();
-  fNu_CC_NC = MCT->GetNeutrino().CCNC();
+  // I only find some variables of the neutrino of the neutrino if the slice corresponds to a neutrino event --> pdgCode of a neutrino
+  // If not, a segmentation fautl hppens because you try to access info that is not available
+  if( std::abs(fNu_PDG)==12 || std::abs(fNu_PDG)==14 ){
+    fNu_E0 = MCT->GetNeutrino().Nu().E(0);
+    fNu_weight = MCT->GetNeutrino().Nu().Weight();
 
-  fNu_HitNuc = MCT->GetNeutrino().HitNuc();
-  fNu_target = MCT->GetNeutrino().Target();
-  fNu_HitQuark = MCT->GetNeutrino().HitQuark();
-  fNu_W = MCT->GetNeutrino().W();
-  fNu_X = MCT->GetNeutrino().X();
-  fNu_Y = MCT->GetNeutrino().Y();
-  fNu_Q2 = MCT->GetNeutrino().QSqr();
+    fNu_interaction_mode = MCT->GetNeutrino().Mode();
+    fNu_interaction_type = MCT->GetNeutrino().InteractionType();
+    fNu_CC_NC = MCT->GetNeutrino().CCNC();
 
-  fGen_index = MCT->Origin();
+    fNu_HitNuc = MCT->GetNeutrino().HitNuc();
+    fNu_target = MCT->GetNeutrino().Target();
+    fNu_HitQuark = MCT->GetNeutrino().HitQuark();
+    fNu_W = MCT->GetNeutrino().W();
+    fNu_X = MCT->GetNeutrino().X();
+    fNu_Y = MCT->GetNeutrino().Y();
+    fNu_Q2 = MCT->GetNeutrino().QSqr();
+
+    fGen_index = MCT->Origin();
+  }
+
 
   if (fVerbose) {
     std::cout << "---- event " << fEvent_ID << " ----" << std::endl;
@@ -1170,16 +1175,16 @@ void sbnd::AnalyzeReco::analysePFPs(const art::Event &e,
       std::map<std::string, float> Pfp_PropMap = PfpMeta_vec.at(0)->GetPropertiesMap();
 
       if(!PfpMeta_vec.empty()){
+        // I find the nu_score only for possible neutrino events (some of the will still be cosmics)
         if( ( std::abs(PFP_prim->PdgCode())==12 ) || ( std::abs(PFP_prim->PdgCode())==14 ) ){
           // -----NuScore----- --> I only find it for the primary PFP
           if(!(( Pfp_PropMap.find("NuScore") == Pfp_PropMap.end() ) || ( Pfp_PropMap["NuScore"]<0 ))){
             fReco_nu_score = Pfp_PropMap["NuScore"];
           }
-
-          // -----IsClearCosmic----- --> I only find it for the primary PFP
-          if(  Pfp_PropMap.find("IsClearCosmic") != Pfp_PropMap.end()  ){
-            fReco_is_clear_cosmic = Pfp_PropMap["IsClearCosmic"];
-          }
+        }
+        // -----IsClearCosmic----- --> I only find it for the primary PFP
+        if(  Pfp_PropMap.find("IsClearCosmic") != Pfp_PropMap.end()  ){
+          fReco_is_clear_cosmic = Pfp_PropMap["IsClearCosmic"];
         }
       }
     }
@@ -1238,6 +1243,10 @@ void sbnd::AnalyzeReco::analysePFPs(const art::Event &e,
       analyseShower(e, shower, shower_handle);
     }
   } // Finish loop over PFParticles
+
+  if(fVerbose){
+    std::cout << std::endl << "I have finished the loop over all PFParticles"<<std::endl;
+  }
 
   // I find the MCT object that matches the best this slice
   getSliceTruthMatch(e);
@@ -1502,16 +1511,18 @@ void sbnd::AnalyzeReco::getSliceTruthMatch(const art::Event &e)
   int best_track_ID = def_int;
 
   // I look for the 'best_track_ID'--> The track id of the track with the most hits in this slice
+  // NO SIRVE
   for(auto const& [track_ID, nhits] : fHitsMap) {
     if(nhits > max_hits){
       best_track_ID = track_ID;
       max_hits=nhits;
     }
   }
-
+  
   if(fVerbose){
     std::cout << "Best track ID: " << best_track_ID << std::endl;
   }
+  // HASTA AQUI
 
   // Now I find the best MCTruth object: the one with the most hits in this slice
   max_hits=def_int;
@@ -1523,9 +1534,17 @@ void sbnd::AnalyzeReco::getSliceTruthMatch(const art::Event &e)
     }
   }
 
+  if(fVerbose){
+    std::cout << std::endl << "Found the best_MCT"  << std::endl;
+  }
+
   // With this information, I can now save the generator information of ONLY the ONE MCTruth object that matches the best this slice
   if(!best_MCT.isNull()){
     analyseTruth_gen(best_MCT);
+  }
+
+  if(fVerbose){
+    std::cout << std::endl << "I have already ran over MCtruth best_MCT " << std::endl;
   }
 }
 
