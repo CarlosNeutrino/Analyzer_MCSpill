@@ -241,7 +241,7 @@ private:
   std::vector<int> fGen_part_PDGcode;       // PDGcode of the particle
   std::vector<double> fGen_part_mass;       // Mass of the particle
   std::vector<double> fGen_part_E0;         // Initial energy of the particle
-  std::vector<double> fGen_part_StartPos_x, fGen_part_StartPos_y, fGen_part_StartPos_z;   // Start position of the particle
+  std::vector<double> fGen_part_startPos_x, fGen_part_startPos_y, fGen_part_startPos_z;   // Start position of the particle
   std::vector<double> fGen_part_P0_x, fGen_part_P0_y, fGen_part_P0_z;                    // Final position of the particle
 
   //Geant4 Particles variables
@@ -252,8 +252,8 @@ private:
   std::vector<double> fG4_part_E0;      // Initial energy of the particle
   std::vector<double> fG4_part_Ef;      // Final energyh of the particle
     
-  std::vector<double> fG4_part_StartPos_x, fG4_part_StartPos_y, fG4_part_StartPos_z;    // Initial position of the particle
-  std::vector<double> fG4_part_EndPos_x, fG4_part_EndPos_y, fG4_part_EndPos_z;          // Final position of the particle
+  std::vector<double> fG4_part_startPos_x, fG4_part_startPos_y, fG4_part_startPos_z;    // Initial position of the particle
+  std::vector<double> fG4_part_endPos_x, fG4_part_endPos_y, fG4_part_endPos_z;          // Final position of the particle
 
   std::vector<double> fG4_part_P0_x, fG4_part_P0_y, fG4_part_P0_z;    // Initial and final momentum of the particle
   std::vector<double> fG4_part_Pf_x, fG4_part_Pf_y, fG4_part_Pf_z;    // Final momentum of the particle
@@ -294,7 +294,7 @@ private:
   std::vector<double> fReco_part_track_phi;         // AAA Angle of the particle with AAA
 
   std::vector<double> fReco_part_track_startPos_x, fReco_part_track_startPos_y, fReco_part_track_startPos_z;    // Start position of the particle of the slice
-  std::vector<double> fReco_part_track_EndPos_x, fReco_part_track_EndPos_y, fReco_part_track_EndPos_z;          // End position of the particle of the slice
+  std::vector<double> fReco_part_track_endPos_x, fReco_part_track_endPos_y, fReco_part_track_endPos_z;          // End position of the particle of the slice
   std::vector<double> fReco_part_startDir_x, fReco_part_startDir_y, fReco_part_startDir_z;                      // (initial) Direction of the particle of the slice
 
   // Calorimetry variables --> they will be empty for the neutrino because it does not leave a trace
@@ -331,7 +331,7 @@ private:
   std::vector<double> fReco_true_p0_x, fReco_true_p0_y, fReco_true_p0_z;   // True momentum of the particle of the slice
   std::vector<double> fReco_true_pf_x, fReco_true_pf_y, fReco_true_pf_z;   // True momentum of the particle of the slice
   std::vector<std::string> fReco_true_endProcess;   // True Process that makes the particle stop propagating
-  std::vector<double> fReco_true_StartPos_x, fReco_true_StartPos_y, fReco_true_StartPos_z;   // True start position of the particle
+  std::vector<double> fReco_true_startPos_x, fReco_true_startPos_y, fReco_true_startPos_z;   // True start position of the particle
   std::vector<bool> fReco_hasTrack;                                                         // Variable that says if the particle has a track (photons, neutrinos do not leave track)
   std::vector<bool> fReco_isNeutrino;                                                      // Variable that says is this PFP track is the neutrino
 
@@ -507,6 +507,9 @@ void sbnd::AnalyzeReco::analyze(art::Event const& e)                            
   FINISH
   */
 
+ // I get the size of the slice vector
+ fReco_event_nSlices = slice_vec.size();
+ 
  // I loop over all the slices of each event:
  for (art::Ptr<recob::Slice> &slice : slice_vec){
   // I clear the variables first
@@ -589,9 +592,9 @@ void sbnd::AnalyzeReco::clearVars()
     fGen_part_PDGcode.clear();
     fGen_part_mass.clear();
     fGen_part_E0.clear();
-    fGen_part_StartPos_x.clear();
-    fGen_part_StartPos_y.clear();
-    fGen_part_StartPos_z.clear();
+    fGen_part_startPos_x.clear();
+    fGen_part_startPos_y.clear();
+    fGen_part_startPos_z.clear();
     fGen_part_P0_x.clear();
     fGen_part_P0_y.clear();
     fGen_part_P0_z.clear();
@@ -605,12 +608,12 @@ void sbnd::AnalyzeReco::clearVars()
     fG4_part_E0.clear();
     fG4_part_Ef.clear();
 
-    fG4_part_StartPos_x.clear();
-    fG4_part_StartPos_y.clear();
-    fG4_part_StartPos_z.clear();
-    fG4_part_EndPos_x.clear();
-    fG4_part_EndPos_y.clear();
-    fG4_part_EndPos_z.clear();
+    fG4_part_startPos_x.clear();
+    fG4_part_startPos_y.clear();
+    fG4_part_startPos_z.clear();
+    fG4_part_endPos_x.clear();
+    fG4_part_endPos_y.clear();
+    fG4_part_endPos_z.clear();
 
     fG4_part_P0_x.clear();
     fG4_part_P0_y.clear();
@@ -657,9 +660,9 @@ void sbnd::AnalyzeReco::clearVars()
     fReco_part_track_startPos_x.clear();
     fReco_part_track_startPos_y.clear();
     fReco_part_track_startPos_z.clear();
-    fReco_part_track_EndPos_x.clear();
-    fReco_part_track_EndPos_y.clear();
-    fReco_part_track_EndPos_z.clear();
+    fReco_part_track_endPos_x.clear();
+    fReco_part_track_endPos_y.clear();
+    fReco_part_track_endPos_z.clear();
 
     fReco_part_startDir_x.clear();
     fReco_part_startDir_y.clear();
@@ -688,9 +691,9 @@ void sbnd::AnalyzeReco::clearVars()
     fReco_true_pf_y.clear();
     fReco_true_pf_z.clear();
     fReco_true_endProcess.clear();
-    fReco_true_StartPos_x.clear();
-    fReco_true_StartPos_y.clear();
-    fReco_true_StartPos_z.clear();
+    fReco_true_startPos_x.clear();
+    fReco_true_startPos_y.clear();
+    fReco_true_startPos_z.clear();
     fReco_hasTrack.clear();
     fReco_isNeutrino.clear();   
 
@@ -728,9 +731,9 @@ void sbnd::AnalyzeReco::setDefaultGenVars()
   fGen_part_PDGcode.push_back(-1);
   fGen_part_mass.push_back(-999);
   fGen_part_E0.push_back(-999);
-  fGen_part_StartPos_x.push_back(-999);
-  fGen_part_StartPos_y.push_back(-999);
-  fGen_part_StartPos_z.push_back(-999);
+  fGen_part_startPos_x.push_back(-999);
+  fGen_part_startPos_y.push_back(-999);
+  fGen_part_startPos_z.push_back(-999);
   fGen_part_P0_x.push_back(-999);
   fGen_part_P0_y.push_back(-999);
   fGen_part_P0_z.push_back(-999);
@@ -746,12 +749,12 @@ void sbnd::AnalyzeReco::setDefaultG4Vars()
   fG4_part_E0.push_back(-999);
   fG4_part_Ef.push_back(-999);
 
-  fG4_part_StartPos_x.push_back(-999);
-  fG4_part_StartPos_y.push_back(-999);
-  fG4_part_StartPos_z.push_back(-999);
-  fG4_part_EndPos_x.push_back(-999);
-  fG4_part_EndPos_y.push_back(-999);
-  fG4_part_EndPos_z.push_back(-999);
+  fG4_part_startPos_x.push_back(-999);
+  fG4_part_startPos_y.push_back(-999);
+  fG4_part_startPos_z.push_back(-999);
+  fG4_part_endPos_x.push_back(-999);
+  fG4_part_endPos_y.push_back(-999);
+  fG4_part_endPos_z.push_back(-999);
 
   fG4_part_P0_x.push_back(-999);
   fG4_part_P0_y.push_back(-999);
@@ -789,9 +792,9 @@ void sbnd::AnalyzeReco::setDefaultRecoVars()
   fReco_part_track_startPos_x.push_back(-999);
   fReco_part_track_startPos_y.push_back(-999);
   fReco_part_track_startPos_z.push_back(-999);
-  fReco_part_track_EndPos_x.push_back(-999);
-  fReco_part_track_EndPos_y.push_back(-999);
-  fReco_part_track_EndPos_z.push_back(-999);
+  fReco_part_track_endPos_x.push_back(-999);
+  fReco_part_track_endPos_y.push_back(-999);
+  fReco_part_track_endPos_z.push_back(-999);
 
   fReco_track_kineticEnergy.push_back(-999);
   fReco_track_visibleEnergy.push_back(-999);
@@ -811,9 +814,9 @@ void sbnd::AnalyzeReco::setDefaultRecoVars()
   fReco_true_pf_y.push_back(-999);
   fReco_true_pf_z.push_back(-999);
   fReco_true_endProcess.push_back("");
-  fReco_true_StartPos_x.push_back(-999);
-  fReco_true_StartPos_y.push_back(-999);
-  fReco_true_StartPos_z.push_back(-999);
+  fReco_true_startPos_x.push_back(-999);
+  fReco_true_startPos_y.push_back(-999);
+  fReco_true_startPos_z.push_back(-999);
   fReco_hasTrack.push_back(false);     // true for default, I only change it to false if it the track is found
   fReco_isNeutrino.push_back(false);     // true for default, I only change it to false if it the track is found
 
@@ -990,11 +993,11 @@ void sbnd::AnalyzeReco::analyseTruth_gen(const art::Ptr<simb::MCTruth> MCT)
   // Get generator information
   // Get neutrino information
 
-  fNu_PDG = MCT->GetNeutrino().Nu().PdgCode(); // If it is not a neutrino, it gives pdgCode = -2147483648
+  if(MCT->Origin() == 1) {    // In this case, this is a neutrino event. If I do not include this a segmentation fautl hppens because you try to access info that is not available for the cosmics
 
-  // I only find some variables of the neutrino of the neutrino if the slice corresponds to a neutrino event --> pdgCode of a neutrino
-  // If not, a segmentation fautl hppens because you try to access info that is not available
-  if( std::abs(fNu_PDG)==12 || std::abs(fNu_PDG)==14 ){
+    fGen_index = 1;
+    fNu_PDG = MCT->GetNeutrino().Nu().PdgCode(); // If it is not a neutrino, it gives pdgCode = -2147483648
+
     fNu_E0 = MCT->GetNeutrino().Nu().E(0);
     fNu_weight = MCT->GetNeutrino().Nu().Weight();
 
@@ -1010,19 +1013,18 @@ void sbnd::AnalyzeReco::analyseTruth_gen(const art::Ptr<simb::MCTruth> MCT)
     fNu_Y = MCT->GetNeutrino().Y();
     fNu_Q2 = MCT->GetNeutrino().QSqr();
 
-    fGen_index = MCT->Origin();
-  }
-
-
-  if (fVerbose) {
-    std::cout << "---- event " << fEvent_ID << " ----" << std::endl;
-    std::cout << "Neutrino Information: " << std::endl;
-    std::cout << "Neutrino properties: " << std::endl;
-    std::cout << "PDG: " << fNu_PDG << " Energy: " << fNu_E0 << " weight: " << fNu_weight << std::endl;
-    std::cout << "Interaction mode: " << fNu_interaction_mode << " Interaction type: " << fNu_interaction_type << " CCorNC: " << fNu_CC_NC << std::endl;
-    std::cout << "Target: " << fNu_target << " HitNuc: " << fNu_HitNuc << " HitQuark: " << fNu_HitQuark << std::endl;
-    std::cout << " W: " << fNu_W << " X: " << fNu_X << " Y: " << fNu_Y << " Qsqr: " << fNu_Q2 << std::endl;
-    std::cout << std::endl;
+    if (fVerbose) {
+      std::cout << "---- event " << fEvent_ID << " ----" << std::endl;
+      std::cout << "Neutrino Information: " << std::endl;
+      std::cout << "Neutrino properties: " << std::endl;
+      std::cout << "PDG: " << fNu_PDG << " Energy: " << fNu_E0 << " weight: " << fNu_weight << std::endl;
+      std::cout << "Interaction mode: " << fNu_interaction_mode << " Interaction type: " << fNu_interaction_type << " CCorNC: " << fNu_CC_NC << std::endl;
+      std::cout << "Target: " << fNu_target << " HitNuc: " << fNu_HitNuc << " HitQuark: " << fNu_HitQuark << std::endl;
+      std::cout << " W: " << fNu_W << " X: " << fNu_X << " Y: " << fNu_Y << " Qsqr: " << fNu_Q2 << std::endl;
+      std::cout << std::endl;
+    }
+  }else{
+    fGen_index = 2;   // In this case, it is a cosmic event
   }
 
   // Get particles information: I loop over all the particles
@@ -1037,9 +1039,9 @@ void sbnd::AnalyzeReco::analyseTruth_gen(const art::Ptr<simb::MCTruth> MCT)
     fGen_part_PDGcode.back() = MCTpart.PdgCode();
     fGen_part_mass.back() = MCTpart.Mass();
     fGen_part_E0.back() = MCTpart.E(0);
-    fGen_part_StartPos_x.back() = MCTpart.Vx(0);
-    fGen_part_StartPos_y.back() = MCTpart.Vy(0);
-    fGen_part_StartPos_z.back() = MCTpart.Vz(0);
+    fGen_part_startPos_x.back() = MCTpart.Vx(0);
+    fGen_part_startPos_y.back() = MCTpart.Vy(0);
+    fGen_part_startPos_z.back() = MCTpart.Vz(0);
     fGen_part_P0_x.back() = MCTpart.Px(0);
     fGen_part_P0_y.back() = MCTpart.Py(0);
     fGen_part_P0_z.back() = MCTpart.Pz(0);
@@ -1072,12 +1074,12 @@ void sbnd::AnalyzeReco::analyseTruth_g4(const std::vector<art::Ptr < simb::MCPar
       fG4_part_E0.back() = MCP->E(0);
       fG4_part_Ef.back() = MCP->E(last);
 
-      fG4_part_StartPos_x.back() = MCP->Vx(0);
-      fG4_part_StartPos_y.back() = MCP->Vy(0);
-      fG4_part_StartPos_z.back() = MCP->Vz(0);
-      fG4_part_EndPos_x.back() = MCP->Vx(last);
-      fG4_part_EndPos_y.back() = MCP->Vy(last);
-      fG4_part_EndPos_z.back() = MCP->Vz(last);
+      fG4_part_startPos_x.back() = MCP->Vx(0);
+      fG4_part_startPos_y.back() = MCP->Vy(0);
+      fG4_part_startPos_z.back() = MCP->Vz(0);
+      fG4_part_endPos_x.back() = MCP->Vx(last);
+      fG4_part_endPos_y.back() = MCP->Vy(last);
+      fG4_part_endPos_z.back() = MCP->Vz(last);
 
       fG4_part_P0_x.back() = MCP->Px(0);
       fG4_part_P0_y.back() = MCP->Py(0);
@@ -1223,7 +1225,7 @@ void sbnd::AnalyzeReco::analysePFPs(const art::Event &e,
       analyseTrack(e, track, track_handle);
     }else{
       fReco_hasTrack.back() = false;
-      if( ( fReco_part_PDGCode.back()==12 ) && ( fReco_part_PDGCode.back()==14 ) ){
+      if( ( fReco_part_PDGCode.back()==12 ) || ( fReco_part_PDGCode.back()==14 ) ){
         fReco_isNeutrino.back() = true;
       }else{
         fReco_isNeutrino.back() = false;
@@ -1287,7 +1289,7 @@ void sbnd::AnalyzeReco::analysePFPs(const art::Event &e,
       std::cout << "  True PdgCode: " << fReco_track_truePDG.at(i_pfp) << std::endl;
       std::cout << "  True energy: " << fReco_true_E0.at(i_pfp) << std::endl;
       std::cout << "  True end process: " << fReco_true_endProcess.at(i_pfp) << std::endl;
-      std::cout << "  True start position: (" << fReco_true_StartPos_x.at(i_pfp) << ", " << fReco_true_StartPos_y.at(i_pfp) << ", " << fReco_true_StartPos_z.at(i_pfp) << ")" << std::endl<<std::endl;
+      std::cout << "  True start position: (" << fReco_true_startPos_x.at(i_pfp) << ", " << fReco_true_startPos_y.at(i_pfp) << ", " << fReco_true_startPos_z.at(i_pfp) << ")" << std::endl<<std::endl;
     }
   }
 }
@@ -1317,9 +1319,9 @@ void sbnd::AnalyzeReco::analyseTrack(const art::Event &e,
   fReco_part_track_startPos_y.back() = track->Start().Y();
   fReco_part_track_startPos_z.back() = track->Start().Z();
 
-  fReco_part_track_EndPos_x.back() = track->End().X();
-  fReco_part_track_EndPos_y.back() = track->End().Y();
-  fReco_part_track_EndPos_z.back() = track->End().Z();
+  fReco_part_track_endPos_x.back() = track->End().X();
+  fReco_part_track_endPos_y.back() = track->End().Y();
+  fReco_part_track_endPos_z.back() = track->End().Z();
   
   // I get the Assoc that I need:
   art::FindManyP<anab::Calorimetry> TrackCaloAssoc(track_handle, e, fCalorimetryLabel);     // calorimetry of each track
@@ -1458,9 +1460,9 @@ void sbnd::AnalyzeReco::getTrackTruthMatch(const art::Event &e,
   // I only find it for particles that leave a non-0 number of hits
   if(fHitsMap[trackID] != 0){
     fReco_track_completeness.back() = completeness(e, hits, trackID);
+    fReco_track_purity.back() = purity(e, hits, trackID);
   }
-  
-  fReco_track_purity.back() = purity(e, hits, trackID);
+
   
   // I save the important g4 information from the track
   for (size_t i_p = 0; i_p < fG4_part_trackID.size(); i_p++){
@@ -1483,9 +1485,9 @@ void sbnd::AnalyzeReco::getTrackTruthMatch(const art::Event &e,
       fReco_true_endProcess.back() = fG4_part_endProcess.at(i_p);
 
       // Start position
-      fReco_true_StartPos_x.back() = fG4_part_StartPos_x.at(i_p);
-      fReco_true_StartPos_y.back() = fG4_part_StartPos_y.at(i_p);
-      fReco_true_StartPos_z.back() = fG4_part_StartPos_z.at(i_p);
+      fReco_true_startPos_x.back() = fG4_part_startPos_x.at(i_p);
+      fReco_true_startPos_y.back() = fG4_part_startPos_y.at(i_p);
+      fReco_true_startPos_z.back() = fG4_part_startPos_z.at(i_p);
     }
   }
 }
@@ -1642,9 +1644,9 @@ void sbnd::AnalyzeReco::beginJob()                                              
     fTree->Branch("gen_part_PDGcode", &fGen_part_PDGcode);
     fTree->Branch("gen_part_mass", &fGen_part_mass);
     fTree->Branch("gen_part_E0", &fGen_part_E0);
-    fTree->Branch("gen_part_StartPos_x", &fGen_part_StartPos_x);
-    fTree->Branch("gen_part_StartPos_y", &fGen_part_StartPos_y);
-    fTree->Branch("gen_part_StartPos_z", &fGen_part_StartPos_z);
+    fTree->Branch("gen_part_startPos_x", &fGen_part_startPos_x);
+    fTree->Branch("gen_part_startPos_y", &fGen_part_startPos_y);
+    fTree->Branch("gen_part_startPos_z", &fGen_part_startPos_z);
     fTree->Branch("gen_part_P0_x", &fGen_part_P0_x);
     fTree->Branch("gen_part_P0_y", &fGen_part_P0_y);
     fTree->Branch("gen_part_P0_z", &fGen_part_P0_z);
@@ -1659,12 +1661,12 @@ void sbnd::AnalyzeReco::beginJob()                                              
     fTree->Branch("g4_part_E0", &fG4_part_E0);
     fTree->Branch("g4_part_Ef", &fG4_part_Ef);
       
-    fTree->Branch("g4_part_startPos_x", &fG4_part_StartPos_x);
-    fTree->Branch("g4_part_startPos_y", &fG4_part_StartPos_y);
-    fTree->Branch("g4_part_startPos_z", &fG4_part_StartPos_z);
-    fTree->Branch("g4_part_EndPos_x", &fG4_part_EndPos_x);
-    fTree->Branch("g4_part_EndPos_y", &fG4_part_EndPos_y);
-    fTree->Branch("g4_part_EndPos_z", &fG4_part_EndPos_z);
+    fTree->Branch("g4_part_startPos_x", &fG4_part_startPos_x);
+    fTree->Branch("g4_part_startPos_y", &fG4_part_startPos_y);
+    fTree->Branch("g4_part_startPos_z", &fG4_part_startPos_z);
+    fTree->Branch("g4_part_endPos_x", &fG4_part_endPos_x);
+    fTree->Branch("g4_part_endPos_y", &fG4_part_endPos_y);
+    fTree->Branch("g4_part_endPos_z", &fG4_part_endPos_z);
 
     fTree->Branch("g4_part_P0_x", &fG4_part_P0_x);
     fTree->Branch("g4_part_P0_y", &fG4_part_P0_y);
@@ -1704,9 +1706,9 @@ void sbnd::AnalyzeReco::beginJob()                                              
     fTree->Branch("reco_part_PDGCode", &fReco_part_PDGCode);
     fTree->Branch("reco_part_isPrimaryChildren", &fReco_part_isPrimaryChildren);
 
-    fTree->Branch("reco_part_vertexPosX", &fReco_part_vertexPos_x);
-    fTree->Branch("reco_part_vertexPosY", &fReco_part_vertexPos_y);
-    fTree->Branch("reco_part_vertexPosZ", &fReco_part_vertexPos_z);
+    fTree->Branch("reco_part_vertexPos_x", &fReco_part_vertexPos_x);
+    fTree->Branch("reco_part_vertexPos_y", &fReco_part_vertexPos_y);
+    fTree->Branch("reco_part_vertexPos_z", &fReco_part_vertexPos_z);
     
     fTree->Branch("reco_part_track_score", &fReco_part_track_score);
     fTree->Branch("reco_nu_score", &fReco_nu_score);
@@ -1715,23 +1717,24 @@ void sbnd::AnalyzeReco::beginJob()                                              
     fTree->Branch("reco_part_track_theta", &fReco_part_track_theta);
     fTree->Branch("reco_part_track_phi", &fReco_part_track_phi);
 
-    fTree->Branch("reco_part_track_startPosX", &fReco_part_track_startPos_x);
-    fTree->Branch("reco_part_track_startPosY", &fReco_part_track_startPos_y);
-    fTree->Branch("reco_part_track_startPosZ", &fReco_part_track_startPos_z);
+    fTree->Branch("reco_part_track_startPos_x", &fReco_part_track_startPos_x);
+    fTree->Branch("reco_part_track_startPos_y", &fReco_part_track_startPos_y);
+    fTree->Branch("reco_part_track_startPos_z", &fReco_part_track_startPos_z);
 
-    fTree->Branch("reco_part_track_EndPosX", &fReco_part_track_EndPos_x);
-    fTree->Branch("reco_part_track_EndPosY", &fReco_part_track_EndPos_y);
-    fTree->Branch("reco_part_track_EndPosZ", &fReco_part_track_EndPos_z);
+    fTree->Branch("reco_part_track_endPos_x", &fReco_part_track_endPos_x);
+    fTree->Branch("reco_part_track_endPos_y", &fReco_part_track_endPos_y);
+    fTree->Branch("reco_part_track_endPos_z", &fReco_part_track_endPos_z);
 
-    fTree->Branch("reco_part_startDirX", &fReco_part_startDir_x);
-    fTree->Branch("reco_part_startDirY", &fReco_part_startDir_y);
-    fTree->Branch("reco_part_startDirZ", &fReco_part_startDir_z);
+    fTree->Branch("reco_part_startDir_x", &fReco_part_startDir_x);
+    fTree->Branch("reco_part_startDir_y", &fReco_part_startDir_y);
+    fTree->Branch("reco_part_startDir_z", &fReco_part_startDir_z);
 
     fTree->Branch("reco_track_kineticEnergy", &fReco_track_kineticEnergy);
     fTree->Branch("reco_track_visibleEnergy", &fReco_track_visibleEnergy);
     fTree->Branch("reco_track_dEdx", &fReco_track_dEdx);
     fTree->Branch("reco_track_residualRange", &fReco_track_residualRange);
     fTree->Branch("reco_track_range", &fReco_track_range);
+    fTree->Branch("reco_track_pitch", &fReco_track_pitch);
 
     fTree->Branch("reco_track_completeness", &fReco_track_completeness);
     fTree->Branch("reco_track_purity", &fReco_track_purity); 
@@ -1741,13 +1744,13 @@ void sbnd::AnalyzeReco::beginJob()                                              
     fTree->Branch("reco_part_chi2_kaon", &fReco_part_chi2_kaon);
     fTree->Branch("reco_part_chi2_proton", &fReco_part_chi2_proton);
 
-    fTree->Branch("reco_shower_dirX", &fReco_shower_dir_x);
-    fTree->Branch("reco_shower_dirY", &fReco_shower_dir_y);
-    fTree->Branch("reco_shower_dirZ", &fReco_shower_dir_z);
+    fTree->Branch("reco_shower_dir_x", &fReco_shower_dir_x);
+    fTree->Branch("reco_shower_dir_y", &fReco_shower_dir_y);
+    fTree->Branch("reco_shower_dir_z", &fReco_shower_dir_z);
 
-    fTree->Branch("reco_shower_startX", &fReco_shower_start_x);
-    fTree->Branch("reco_shower_startY", &fReco_shower_start_y);
-    fTree->Branch("reco_shower_startZ", &fReco_shower_start_z);
+    fTree->Branch("reco_shower_start_x", &fReco_shower_start_x);
+    fTree->Branch("reco_shower_start_y", &fReco_shower_start_y);
+    fTree->Branch("reco_shower_start_z", &fReco_shower_start_z);
 
     fTree->Branch("reco_shower_openAngle", &fReco_shower_openAngle);
     fTree->Branch("reco_shower_length", &fReco_shower_length);
@@ -1768,9 +1771,9 @@ void sbnd::AnalyzeReco::beginJob()                                              
     fTree->Branch("reco_true_pf_y", &fReco_true_pf_y);
     fTree->Branch("reco_true_pf_z", &fReco_true_pf_z);
     fTree->Branch("reco_true_endProcess", &fReco_true_endProcess);
-    fTree->Branch("reco_true_startPos_x", &fReco_true_StartPos_x);
-    fTree->Branch("reco_true_startPos_y", &fReco_true_StartPos_y);
-    fTree->Branch("reco_true_startPos_z", &fReco_true_StartPos_z);
+    fTree->Branch("reco_true_startPos_x", &fReco_true_startPos_x);
+    fTree->Branch("reco_true_startPos_y", &fReco_true_startPos_y);
+    fTree->Branch("reco_true_startPos_z", &fReco_true_startPos_z);
   }
 
 }
