@@ -140,7 +140,8 @@ public:
   //Reestart variables
   void clearMaps();
   void setupMaps(const art::Event &e, const art::ValidHandle<std::vector<recob::Hit>> &hit_handle,
-                                       const art::ValidHandle<std::vector<recob::PFParticle>> &PFP_Handle);
+                                       const art::ValidHandle<std::vector<recob::PFParticle>> &PFP_Handle, 
+                                       const std::vector<art::Ptr<recob::Hit>> &slice_hit_vec );
 
   void clearVars();
   void clearSubRunVars();
@@ -194,7 +195,7 @@ public:
 private:
   // Vraibles that I need for truthmatching
   art::ServiceHandle<cheat::BackTrackerService> backTracker;
-  art::ServiceHandle<cheat::ParticleInventoryService> particleInv;
+  art::ServiceHandle<cheat::ParticleInventoryService> particleInv;    // Used for slice matching (track ID to MCTruth)
 
   // Declare member data here.
 
@@ -242,6 +243,7 @@ private:
   std::vector<double> fGen_part_mass;       // Mass of the particle
   std::vector<double> fGen_part_E0;         // Initial energy of the particle
   std::vector<double> fGen_part_startPos_x, fGen_part_startPos_y, fGen_part_startPos_z;   // Start position of the particle
+  std::vector<double> fGen_part_start_T;                                                   // Start time of the particle
   std::vector<double> fGen_part_P0_x, fGen_part_P0_y, fGen_part_P0_z;                    // Final position of the particle
 
   //Geant4 Particles variables
@@ -253,6 +255,7 @@ private:
   std::vector<double> fG4_part_Ef;      // Final energyh of the particle
     
   std::vector<double> fG4_part_startPos_x, fG4_part_startPos_y, fG4_part_startPos_z;    // Initial position of the particle
+  std::vector<double> fG4_part_start_T;                                                   // Initial time of the particle
   std::vector<double> fG4_part_endPos_x, fG4_part_endPos_y, fG4_part_endPos_z;          // Final position of the particle
 
   std::vector<double> fG4_part_P0_x, fG4_part_P0_y, fG4_part_P0_z;    // Initial and final momentum of the particle
@@ -332,6 +335,7 @@ private:
   std::vector<double> fReco_true_pf_x, fReco_true_pf_y, fReco_true_pf_z;   // True momentum of the particle of the slice
   std::vector<std::string> fReco_true_endProcess;   // True Process that makes the particle stop propagating
   std::vector<double> fReco_true_startPos_x, fReco_true_startPos_y, fReco_true_startPos_z;   // True start position of the particle
+  std::vector<double> fReco_true_start_T;                                                   // True start time of the particle
   std::vector<bool> fReco_hasTrack;                                                         // Variable that says if the particle has a track (photons, neutrinos do not leave track)
   std::vector<bool> fReco_isNeutrino;                                                      // Variable that says is this PFP track is the neutrino
 
@@ -522,9 +526,12 @@ void sbnd::AnalyzeReco::analyze(art::Event const& e)                            
   // I analyze the g4 stage
   analyseTruth_g4(MCP_vec);
 
-  // Get the PFPs in the slice using the assciation betwen slice and PFPs
+  // Get the PFPs in the slice using the assciation between slice and PFPs
   std::vector<art::Ptr<recob::PFParticle>> PFP_vec(SlicePfpAssoc.at(slice.key()));
   fReco_slice_nPFParticles = PFP_vec.size();
+
+  // Get the hits of the slice using the association between slice and hits
+  std::vector<art::Ptr<recob::Hit>> slice_hit_vec(SliceHitAssoc.at(slice.key()));
 
   // I make sure I only continue if the slice is not empty
   if(PFP_vec.size()!=0){
@@ -548,7 +555,7 @@ void sbnd::AnalyzeReco::analyze(art::Event const& e)                            
       }
 
       // Setup the maps
-      setupMaps(e, hit_handle, PFP_handle);
+      setupMaps(e, hit_handle, PFP_handle, slice_hit_vec);
 
       // Analyze the data: PFPs, tracks, showers, calorimetry, truth matching and generator
       analysePFPs(e,MCT_vec, MCP_vec, prim, PFP_vec, PFP_handle, track_handle, shower_handle);
@@ -595,6 +602,7 @@ void sbnd::AnalyzeReco::clearVars()
     fGen_part_startPos_x.clear();
     fGen_part_startPos_y.clear();
     fGen_part_startPos_z.clear();
+    fGen_part_start_T.clear();
     fGen_part_P0_x.clear();
     fGen_part_P0_y.clear();
     fGen_part_P0_z.clear();
@@ -611,6 +619,7 @@ void sbnd::AnalyzeReco::clearVars()
     fG4_part_startPos_x.clear();
     fG4_part_startPos_y.clear();
     fG4_part_startPos_z.clear();
+    fG4_part_start_T.clear();
     fG4_part_endPos_x.clear();
     fG4_part_endPos_y.clear();
     fG4_part_endPos_z.clear();
@@ -694,6 +703,7 @@ void sbnd::AnalyzeReco::clearVars()
     fReco_true_startPos_x.clear();
     fReco_true_startPos_y.clear();
     fReco_true_startPos_z.clear();
+    fReco_true_start_T.clear();
     fReco_hasTrack.clear();
     fReco_isNeutrino.clear();   
 
@@ -734,6 +744,7 @@ void sbnd::AnalyzeReco::setDefaultGenVars()
   fGen_part_startPos_x.push_back(-999);
   fGen_part_startPos_y.push_back(-999);
   fGen_part_startPos_z.push_back(-999);
+  fGen_part_start_T.push_back(-999);
   fGen_part_P0_x.push_back(-999);
   fGen_part_P0_y.push_back(-999);
   fGen_part_P0_z.push_back(-999);
@@ -752,6 +763,7 @@ void sbnd::AnalyzeReco::setDefaultG4Vars()
   fG4_part_startPos_x.push_back(-999);
   fG4_part_startPos_y.push_back(-999);
   fG4_part_startPos_z.push_back(-999);
+  fG4_part_start_T.push_back(-999);
   fG4_part_endPos_x.push_back(-999);
   fG4_part_endPos_y.push_back(-999);
   fG4_part_endPos_z.push_back(-999);
@@ -817,6 +829,7 @@ void sbnd::AnalyzeReco::setDefaultRecoVars()
   fReco_true_startPos_x.push_back(-999);
   fReco_true_startPos_y.push_back(-999);
   fReco_true_startPos_z.push_back(-999);
+  fReco_true_start_T.push_back(-999);
   fReco_hasTrack.push_back(false);     // true for default, I only change it to false if it the track is found
   fReco_isNeutrino.push_back(false);     // true for default, I only change it to false if it the track is found
 
@@ -852,15 +865,13 @@ void sbnd::AnalyzeReco::clearMaps()
 
 
 void sbnd::AnalyzeReco::setupMaps(const art::Event &e, const art::ValidHandle<std::vector<recob::Hit>> &hit_handle,
-                                       const art::ValidHandle<std::vector<recob::PFParticle>> &PFP_handle)
+                                       const art::ValidHandle<std::vector<recob::PFParticle>> &PFP_handle,
+                                       const std::vector<art::Ptr<recob::Hit>> &hit_vec)
                                        {
   // I get the neccesary info for truth matching
   const detinfo::DetectorClocksData clockData = art::ServiceHandle<detinfo::DetectorClocksService>()->DataFor(e);
 
-  // I create the vector with all the hits 
-  std::vector<art::Ptr<recob::Hit>> hit_vec;
-  art::fill_ptr_vector(hit_vec, hit_handle);
-  // I loop over all the hits
+  // I loop over all the hits in the slice
   for(auto const& hit : hit_vec){
     // I find the trackID of the truth particle that made the hit
     const int trackID = TruthMatchUtils::TrueParticleID(clockData,hit,true);
@@ -880,9 +891,9 @@ void sbnd::AnalyzeReco::setupMaps(const art::Event &e, const art::ValidHandle<st
     }
 
     // I fill the map fMCTruthHitsMap of the MCT object
-    // Counts how many hits are associated with each MCTruth interaction
+    // Counts how many hits are associated with each MCTruth interaction IN THIS SLICE
     fMCTruthHitsMap[MCT]++;
-  }
+  } 
 
   // Create the vector of PFPs
   std::vector<art::Ptr<recob::PFParticle>> PFP_vec;
@@ -917,7 +928,7 @@ int sbnd::AnalyzeReco::getTotalGenEvents(const art::Event &e)
   return nGenEvt;
 }
 
-// Method to calculate the completeness of a trace. If there are no hits --> purity = def_float (happens for photons)
+// Method to calculate the completeness of a trace. If there are no hits --> completeness = def_float (happens for photons)
 float sbnd::AnalyzeReco::completeness(const art::Event &e, const std::vector<art::Ptr<recob::Hit>> &objectHits, const int trackID){
 
   const detinfo::DetectorClocksData clockData = art::ServiceHandle<detinfo::DetectorClocksService>()->DataFor(e);
@@ -993,6 +1004,8 @@ void sbnd::AnalyzeReco::analyseTruth_gen(const art::Ptr<simb::MCTruth> MCT)
   // Get generator information
   // Get neutrino information
 
+  //std::cout<<std::endl<<"Origin: "<<MCT->Origin()<<std::endl;
+
   if(MCT->Origin() == 1) {    // In this case, this is a neutrino event. If I do not include this a segmentation fautl hppens because you try to access info that is not available for the cosmics
 
     fGen_index = 1;
@@ -1042,6 +1055,7 @@ void sbnd::AnalyzeReco::analyseTruth_gen(const art::Ptr<simb::MCTruth> MCT)
     fGen_part_startPos_x.back() = MCTpart.Vx(0);
     fGen_part_startPos_y.back() = MCTpart.Vy(0);
     fGen_part_startPos_z.back() = MCTpart.Vz(0);
+    fGen_part_start_T.back() = MCTpart.T(0);
     fGen_part_P0_x.back() = MCTpart.Px(0);
     fGen_part_P0_y.back() = MCTpart.Py(0);
     fGen_part_P0_z.back() = MCTpart.Pz(0);
@@ -1077,6 +1091,7 @@ void sbnd::AnalyzeReco::analyseTruth_g4(const std::vector<art::Ptr < simb::MCPar
       fG4_part_startPos_x.back() = MCP->Vx(0);
       fG4_part_startPos_y.back() = MCP->Vy(0);
       fG4_part_startPos_z.back() = MCP->Vz(0);
+      fG4_part_start_T.back() = MCP->T(0);
       fG4_part_endPos_x.back() = MCP->Vx(last);
       fG4_part_endPos_y.back() = MCP->Vy(last);
       fG4_part_endPos_z.back() = MCP->Vz(last);
@@ -1488,6 +1503,7 @@ void sbnd::AnalyzeReco::getTrackTruthMatch(const art::Event &e,
       fReco_true_startPos_x.back() = fG4_part_startPos_x.at(i_p);
       fReco_true_startPos_y.back() = fG4_part_startPos_y.at(i_p);
       fReco_true_startPos_z.back() = fG4_part_startPos_z.at(i_p);
+      fReco_true_start_T.back() = fG4_part_start_T.at(i_p);
     }
   }
 }
@@ -1497,7 +1513,7 @@ getTracktruthMatch
 RECEIVES:
 - The art::Event 'e'
 (- the map fHitsMap: g4-trackID --> number of hits of this track)
-(- the map fMCTruthHitsMap: MCTruth object --> number of hitsb of this whole object)
+(- the map fMCTruthHitsMap: MCTruth object --> number of hits in this slice)
 FINDS:
 the MCT that corresponds the best to this slice and analyzes it
 */
@@ -1510,29 +1526,17 @@ void sbnd::AnalyzeReco::getSliceTruthMatch(const art::Event &e)
 
   // I set minimum values for variables I will change later  
   int max_hits = def_int;
-  int best_track_ID = def_int;
-
-  // I look for the 'best_track_ID'--> The track id of the track with the most hits in this slice
-  // NO SIRVE
-  for(auto const& [track_ID, nhits] : fHitsMap) {
-    if(nhits > max_hits){
-      best_track_ID = track_ID;
-      max_hits=nhits;
-    }
-  }
-  
-  if(fVerbose){
-    std::cout << "Best track ID: " << best_track_ID << std::endl;
-  }
-  // HASTA AQUI
 
   // Now I find the best MCTruth object: the one with the most hits in this slice
+  // To do this, I need to create a map with the number of hits of each MCTruth object CORRESPONDING TO THIS SLICE
+  // fMCTruthHitsMap -> map<MCTruth object, number of hits of this object IN THIS SLICE>
+
   max_hits=def_int;
   art::Ptr<simb::MCTruth> best_MCT = art::Ptr<simb::MCTruth>();
-  for(auto const& [MCT, nhits] : fMCTruthHitsMap){
+  for(auto const& [MCT, nhits] : fMCTruthHitsMap){  // I loop over the map fMCTruthHitsMap to find the MCTruth object with the most hits in THIS SLICE
     if(nhits > max_hits) {
       max_hits = nhits;
-      best_MCT  = MCT;
+      best_MCT  = MCT;      // MCT object this the most amount of hits in the tracks of this slice
     }
   }
 
@@ -1546,7 +1550,7 @@ void sbnd::AnalyzeReco::getSliceTruthMatch(const art::Event &e)
   }
 
   if(fVerbose){
-    std::cout << std::endl << "I have already ran over MCtruth best_MCT " << std::endl;
+    //std::cout << std::endl << "I have already ran over MCtruth best_MCT " << std::endl;
   }
 }
 
@@ -1647,6 +1651,7 @@ void sbnd::AnalyzeReco::beginJob()                                              
     fTree->Branch("gen_part_startPos_x", &fGen_part_startPos_x);
     fTree->Branch("gen_part_startPos_y", &fGen_part_startPos_y);
     fTree->Branch("gen_part_startPos_z", &fGen_part_startPos_z);
+    fTree->Branch("gen_part_start_T", &fGen_part_start_T);
     fTree->Branch("gen_part_P0_x", &fGen_part_P0_x);
     fTree->Branch("gen_part_P0_y", &fGen_part_P0_y);
     fTree->Branch("gen_part_P0_z", &fGen_part_P0_z);
@@ -1664,6 +1669,7 @@ void sbnd::AnalyzeReco::beginJob()                                              
     fTree->Branch("g4_part_startPos_x", &fG4_part_startPos_x);
     fTree->Branch("g4_part_startPos_y", &fG4_part_startPos_y);
     fTree->Branch("g4_part_startPos_z", &fG4_part_startPos_z);
+    fTree->Branch("g4_part_start_T", &fG4_part_start_T);
     fTree->Branch("g4_part_endPos_x", &fG4_part_endPos_x);
     fTree->Branch("g4_part_endPos_y", &fG4_part_endPos_y);
     fTree->Branch("g4_part_endPos_z", &fG4_part_endPos_z);
@@ -1774,6 +1780,7 @@ void sbnd::AnalyzeReco::beginJob()                                              
     fTree->Branch("reco_true_startPos_x", &fReco_true_startPos_x);
     fTree->Branch("reco_true_startPos_y", &fReco_true_startPos_y);
     fTree->Branch("reco_true_startPos_z", &fReco_true_startPos_z);
+    fTree->Branch("reco_true_start_T", &fReco_true_start_T);
   }
 
 }
